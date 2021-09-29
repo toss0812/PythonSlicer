@@ -42,42 +42,6 @@ plane_norm = np.array([0,0,1], dtype=np.float32) # normal vector of slice plane,
 
 intersections = [] # temp list to store any found intersections
 
-''' ========================================================================================== '''
-''' = yes, yes, this can be written smarter and more compact but fuck that, that's for later = '''
-''' ========================================================================================== '''
-# ## 0:3 -> 3:6
-# for line in range(len(my_mesh.points)): # Itterte through all points
-#     l0 = my_mesh.points[line][0:3] # first vector
-#     l1 = my_mesh.points[line][3:6] # second vector
-
-#     try:
-#         i = isect_line_plane(l0, l1, plane_coord, plane_norm) # find intersection point
-#         intersections.append(i) # add found intersection to temp list
-#     except Exception: # if no intersection found "isect_line_plane()" raises Exception
-#         pass
-
-# ## 3:6 -> 6:9
-# for line in range(len(my_mesh.points)):
-#     l0 = my_mesh.points[line][3:6]
-#     l1 = my_mesh.points[line][6:9]
-
-#     try:
-#         i = isect_line_plane(l0, l1, plane_coord, plane_norm)
-#         intersections.append(i)
-#     except Exception:
-#         pass
-
-# ## 0:3 -> 6:9
-# for line in range(len(my_mesh.points)):
-#     l0 = my_mesh.points[line][0:3]
-#     l1 = my_mesh.points[line][6:9]
-
-#     try:
-#         i = isect_line_plane(l0, l1, plane_coord, plane_norm)
-#         intersections.append(i)
-#     except Exception:
-#         pass
-
 ## for 
 for line in range(len(my_mesh.points)): ## Check all polygons
     for start_stop in line_permutations:
@@ -97,3 +61,5 @@ print(intersections)
 condensed = condense(intersections)
 print("\n\n\n")
 print(condensed)
+
+# for 
