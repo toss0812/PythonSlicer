@@ -1,5 +1,6 @@
 from calculator import *
 from reader import *
+import itertools as it
 
 ## ========== CONDENSE
 ## Reduces a list of 3D Vectors to only have unique entries
@@ -9,9 +10,9 @@ def condense(to_condense: list):
 
 
 ## ========== MAIN THINGS
-my_mesh = read("yes_box_bin.stl") # simple cube with sides of length = 10
+my_mesh = read("untitled v0.stl") # simple cube with sides of length = 10
 
-print(my_mesh.points) 
+# print(my_mesh.points) 
 '''
 this is a representation of an .stl polygon in a numpy.ndarray
 dtype = float32
@@ -57,9 +58,28 @@ for line in range(len(my_mesh.points)): ## Check all polygons
 
 
 
-print(intersections)
+## Remove repeat points
 condensed = condense(intersections)
-print("\n\n\n")
-print(condensed)
 
-# for 
+## Generate all possible permutations of condensed points
+permutations = it.permutations(condensed, r=3)
+
+z = 0
+# for x in permutations:
+#     z = z + 1
+
+# for x in permutations:
+#     print(x[0])
+
+# print(condensed)
+
+perimiter = []
+for i in permutations:
+    test = point_is_on_line(i[0], i[1], i[2])
+    if (test):
+        perimiter.append(i[2])
+
+for i in perimiter:
+    print(i)
+
+# perimiter_condensed
