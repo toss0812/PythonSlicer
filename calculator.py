@@ -1,5 +1,6 @@
 import numpy as np
 from stl import mesh
+import math
 '''
     ##### CALCULATOR FUNCTIONS #####
     #
@@ -13,8 +14,32 @@ from stl import mesh
     TODO: ignore points already on a line to ensure to double extrusion over line segment
     TODO:
 '''
+
+
+
+
 '''
-    ##################################################
+    ####################################################################################################
+'''
+'''
+    Custom Errors
+'''
+## Line is completely within slicing plane
+class LineIsOnPlaneException(Exception):
+    def __init__(self):
+        super().__init__("Line is on plane")
+
+## Distance between points is 0
+class ZeroDistanceException(Exception):
+    def __init__(self):
+        super().__init__("Distance between points is 0")
+
+
+
+
+
+'''
+    ####################################################################################################
 '''
 ''' 
     ===== FIND INTERSECTION =====
@@ -31,7 +56,7 @@ from stl import mesh
 '''
 def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsilon = 1e-6):
     if (l0[2] == pc[2] and l1[2] == pc[2]): # line is on plane ##TODO: return both points as intersecting points
-        raise Exception()
+        raise LineIsOnPlaneException()
     
     ld = l1-l0 # calculate difference between start and end of line
     dot = np.dot(pn, ld) # dot product of plane normal and difference
@@ -50,8 +75,9 @@ def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsi
 
 
 
+
 '''
-    ##################################################
+    ####################################################################################################
 '''
 '''
     ===== CHECK IF POINT IS ON LINE =====
@@ -98,4 +124,29 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
     else:
         return False
 
+
+
+
+
+'''
+    ##################################################
+'''
+'''
+    ===== CALCULATE DISTANCE BETWEEN POINTS =====
+    = 
+    = 
+    = p0 :: p1 -> distance, direction vector
+    = 
+    = (square root of (sum of (difference between corrosponding components) sqaured))
+    = 
+'''
+def distance_between_points(p0: np.array, p1: np.array):
+    return (
+        math.sqrt(
+            sum(
+                [ math.pow(i,2) - pow(j,2)
+                    for i,j in zip(p1, p0) ]
+            )
+        )
+    )
     
