@@ -29,6 +29,11 @@ class LineIsOnPlaneException(Exception):
     def __init__(self):
         super().__init__("Line is on plane")
 
+## When an array is compared to "None"
+class NoneComparisionException(Exception):
+    def __init__(self):
+        super().__init__("An array was compared to \"None\"")
+
 ## Distance between points is 0
 class ZeroDistanceException(Exception):
     def __init__(self):

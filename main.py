@@ -45,6 +45,7 @@ plane_norm = np.array([0,0,1], dtype=np.float32)    # normal vector of slice pla
 intersections = []  # temp list to store any found intersections
 
 
+## Checking Lines with slicing plane
 for line in range(len(my_mesh.points)): ## Check all polygons
     for start_stop in line_permutations:
 
@@ -64,60 +65,39 @@ for line in range(len(my_mesh.points)): ## Check all polygons
             pass
 
 
+
 ## Remove repeat points
 intersections_distilled = distill(intersections)
 
 
-## Calculate shortest route over points
-point_chain = [None]        ## chain of points for permimiter
-shortest_distance = 10e6    ## starting value -> 10^6mm = 100m
 
-## Find first point of chain closest to (0,0,slice-plane-z)
-for point in intersections_distilled: 
-    temp_distance = distance_between_points(plane_coord, point) ## Calc distance between plane-coordinate and a point
+point_chain = []    ## place to store ordered list of points for toolplath planning later
+bucket = []         ## temp place to store unfiltered points
+min_distance = 10e6 ## temp place to store shortest 
+temp_point = None   ## temp place to store closest point
 
-    if temp_distance < shortest_distance:   ## if distance is less than any earlier found distance -> new closest point        
-        point_chain[0] = point
-        shortest_distance = temp_distance
-
-print(len(intersections_distilled == 1))
-
-# print(point_chain)
-
-# print("\n\n")
-
-## TODO: Remove remove closest point from list first
-
-## GENERATE CHAIN
 while True:
-    # print(len(intersections_distilled == 1))
-    if (len(intersections_distilled == 1)): ## REMINDER: WAAROM ZIET IE EEN LIJST MET LENGTE 8 ALS LENGTE 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        point_chain.append(intersections_distilled[0])
-        print("tering")
-        break
-    print("hoer")
-    refrence_point = point_chain[-1]
-    closest_distance = 10e6
-    closest_point = 0
+    # take point
+    # calc distance
+    # if no more other points?
+        # add point to list
+        # break
+    # compare distance to last known distance
+    # smaller than last known?
+        # replace previous last values with this one
+    # else:
+        # continue searching
 
-    for i in len(intersections_distilled):
-        temp_point = intersections.pop(i)
-        # print(temp_point)
-        try:
-            temp_distance = distance_between_points(refrence_point, temp_point)
-        except Exception:
-            pass
-        if (0 < temp_distance < closest_distance):
-            closest_distance = temp_distance
-            closest_point = temp_distance
+    try:
+        ref_point = point_chain[-1] ## Take last point in chain as new refrence
+    except IndexError:              ## If chain has length 0 -> take plane coordinate as refrence
+        ref_point = plane_coord
 
-        else:
-            intersections_distilled.insert(i, temp_point)
+    for some_point in intersections_distilled:
+        temp_distance = distance_between_points(ref_point, some_point):
 
-    point_chain.append(closest_point)
-
-
-# print(point_chain)
+        if temp_distance < min_distance:
+            
 
 
 
@@ -125,8 +105,6 @@ while True:
 
 
 
-
-# print (point_chain)
 
 
 
