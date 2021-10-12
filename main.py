@@ -77,6 +77,7 @@ min_distance = 10e6 ## temp place to store shortest
 temp_point = None   ## temp place to store closest point
 
 while True:
+    '''
     # take point
     # calc distance
     # if no more other points?
@@ -87,6 +88,7 @@ while True:
         # replace previous last values with this one
     # else:
         # continue searching
+    '''
 
     try:
         ref_point = point_chain[-1] ## Take last point in chain as new refrence
@@ -94,9 +96,10 @@ while True:
         ref_point = plane_coord
 
     for some_point in intersections_distilled:
-        temp_distance = distance_between_points(ref_point, some_point):
+        temp_distance = distance_between_points(ref_point, some_point)
 
         if temp_distance < min_distance:
+            pass # REMOVE
             
 
 
