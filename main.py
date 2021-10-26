@@ -1,6 +1,7 @@
 from calculator import *
 from reader import *
 import itertools as it
+import numpy as np          ## ignore the error message
 
 ## ========== CONDENSE
 ## Reduces a list of 3D Vectors to only have unique entries
@@ -25,7 +26,7 @@ dtype = float32
 ]
 '''
 
-line_permutations = [
+line_permutations = [ ## Cython?
     [
         [0,3], [3,6]
     ],
@@ -69,38 +70,28 @@ for line in range(len(my_mesh.points)): ## Check all polygons
 ## Remove repeat points
 intersections_distilled = distill(intersections)
 
+print(intersections_distilled)
+
+point_chain = []
+point_leftover = []
+
+temp_point = None
+temp_dist = None
+closest_point = None
+closest_distance = None
+ref_point = None
+
+# while True:
+#     try:
+#         ref_point = intersections_distilled[-1]
+#     except IndexError:
+#         ref_point = plane_coord
+
+#     while len(intersections_distilled) > 1:
+#         pass # TODO: don't
 
 
-point_chain = []    ## place to store ordered list of points for toolplath planning later
-bucket = []         ## temp place to store unfiltered points
-min_distance = 10e6 ## temp place to store shortest 
-temp_point = None   ## temp place to store closest point
-
-while True:
-    '''
-    # take point
-    # calc distance
-    # if no more other points?
-        # add point to list
-        # break
-    # compare distance to last known distance
-    # smaller than last known?
-        # replace previous last values with this one
-    # else:
-        # continue searching
-    '''
-
-    try:
-        ref_point = point_chain[-1] ## Take last point in chain as new refrence
-    except IndexError:              ## If chain has length 0 -> take plane coordinate as refrence
-        ref_point = plane_coord
-
-    for some_point in intersections_distilled:
-        temp_distance = distance_between_points(ref_point, some_point)
-
-        if temp_distance < min_distance:
-            pass # REMOVE
-            
+print("aids")     
 
 
 

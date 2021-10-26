@@ -1,5 +1,5 @@
 from calculator import *
-import numpy as np
+import numpy as np          ## ignore the errormessage
 import itertools as it
 
 a = np.array([0,0,0], dtype=np.float32)
@@ -14,7 +14,7 @@ e = b
 # d.remove(e)
 
 
-np.delete(d, b, axis=1)
+# np.delete(d, b, axis=1)
 
 print(a)
 # e = [a,b,c]

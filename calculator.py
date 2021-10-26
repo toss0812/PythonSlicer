@@ -1,5 +1,5 @@
-import numpy as np
-from stl import mesh
+import numpy as np      ## ignore goddamnit, why the fuck is this suddenly not working?
+from stl import mesh    ## ignore
 import math
 '''
     ##### CALCULATOR FUNCTIONS #####
@@ -60,27 +60,27 @@ class ZeroDistanceException(Exception):
     ============================= 
 '''
 def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsilon = 1e-6):
-    if (l0[2] == pc[2] and l1[2] == pc[2]): # line is on plane ##TODO: return both points as intersecting points
+    if (l0[2] == pc[2] and l1[2] == pc[2]): ## line is on plane   #/ TODO: return both points as intersecting points
         raise LineIsOnPlaneException()
     
-    ld = l1-l0 # calculate difference between start and end of line
-    dot = np.dot(pn, ld) # dot product of plane normal and difference
-    # from now on we basically work with vectors relative to l0
+    ld = l1-l0 ## calculate difference between start and end of line
+    dot = np.dot(pn, ld) ## dot product of plane normal and difference
+    
+    ## from now on we basically work with vectors relative to l0
+    if abs(dot)>epsilon:            ## if dot product > 0 -> line intersects plane
+        w = l0 - pc                 ## line from line_start to plane_coordinate
+        fac = -(np.dot(pn, w))/dot  ## factor to scale ld with
+        new = ld * fac              ## scale ld with that factor
+        out = new + l0              ## add line_start to return to a vector relative to Origin
 
-    if abs(dot)>epsilon:            # if dot product > 0 -> line intersects plane
-        w = l0 - pc                 # line from line_start to plane_coordinate
-        fac = -(np.dot(pn, w))/dot  # factor to scale ld with
-        new = ld * fac              # scale ld with that factor
-        out = new + l0              # add line_start to return to a vector relative to Origin
-
-        return out  # return new vector
-    else: # 
+        return out                  ## return new vector
+    else:
         raise Exception()
 
 
 
 
-
+#/ TODO: remove untill @@HERE@@
 '''
     ####################################################################################################
 '''
@@ -97,37 +97,31 @@ def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsi
     =====================================
 '''
 def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
-    # ignore z-component as all points are already in a plane
+    ## ignore z-component as all points are already in a plane
     l0 = l0[:2] 
     l1 = l1[:2]
     p = p[:2]
 
-    print("\n")
+    # print("\n")
 
     ## vectors relative to l0
     d_p_l0 = p - l0     ## from l0 to p
     d_l1_l0 = l1 - l0   ## from l0 to l1
 
-    # print("l0" + str(l0))
-    # print("l1"+ str(l1))
-    # print("p" + str(p))
-    # print("dpl0"+ str(d_p_l0))
-    # print("dl0l1" + str(d_l1_l0))
-
-    cross = np.cross(d_p_l0, d_l1_l0) ## calculate cross product
-    if (cross == 0): ## check if normal vector of 2 relative vectors is 0
+    cross = np.cross(d_p_l0, d_l1_l0)   ## calculate cross product
+    if (cross == 0):                    ## check if normal vector of 2 relative vectors is 0
         k_ac = np.dot(d_l1_l0, d_p_l0)  ## dot product of l0-l1 and l0-p
         k_ab = np.dot(d_l1_l0, d_l1_l0) ## dot product of l0-l1 and l0-l1
 
-        # print("teef")
-        if (0 < k_ac and k_ac < k_ab): ## if k_ac is less than k_ab and greater than 0 -> point is on line
-            print("hoer")
+        if (0 < k_ac and k_ac < k_ab):  ## if k_ac is less than k_ab and greater than 0 -> point is on line
+            # print("hoer")
             return True
         else:
-            # print("bitch")
             return False
     else:
         return False
+
+#/ @@HERE@@
 
 
 
@@ -145,7 +139,7 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
     = (square root of (sum of (difference between corrosponding components) sqaured))
     = 
 '''
-def distance_between_points(p0: np.array, p1: np.array):
+def distance_between_points(p0: np.array, p1: np.array): # TODO give more info for this fucky calculation
     return (
         math.sqrt(
             sum(
