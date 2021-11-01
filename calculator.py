@@ -63,6 +63,10 @@ def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsi
     if (l0[2] == pc[2] and l1[2] == pc[2]): ## line is on plane   #/ TODO: return both points as intersecting points
         raise LineIsOnPlaneException()
     
+    ## TODO: raise E when plane is not between line ends
+    if not(l0[2] < pc[2] < l1[2] or l1[2] < pc[2] < l1[2]):
+        raise Exception()
+
     ld = l1-l0 ## calculate difference between start and end of line
     dot = np.dot(pn, ld) ## dot product of plane normal and difference
     
@@ -91,9 +95,9 @@ def isect_line_plane(l0:np.array, l1: np.array, pc: np.array, pn: np.array, epsi
     = 
     = l0 :: l1 :: p -> Boolean
     = 
-    = l0: start of line
-    = l1: end of line
-    = p: any point
+    = l0:   start of line
+    = l1:   end of line
+    = p:    any point
     =====================================
 '''
 def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
@@ -101,8 +105,6 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
     l0 = l0[:2] 
     l1 = l1[:2]
     p = p[:2]
-
-    # print("\n")
 
     ## vectors relative to l0
     d_p_l0 = p - l0     ## from l0 to p
@@ -114,7 +116,6 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
         k_ab = np.dot(d_l1_l0, d_l1_l0) ## dot product of l0-l1 and l0-l1
 
         if (0 < k_ac and k_ac < k_ab):  ## if k_ac is less than k_ab and greater than 0 -> point is on line
-            # print("hoer")
             return True
         else:
             return False
@@ -136,16 +137,49 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
     = 
     = p0 :: p1 -> distance, direction vector
     = 
-    = (square root of (sum of (difference between corrosponding components) sqaured))
+    = (square root of (absolute of(sum of (difference between corrosponding components) sqaured)))
     = 
 '''
 def distance_between_points(p0: np.array, p1: np.array): # TODO give more info for this fucky calculation
     return (
         math.sqrt(
-            sum(
-                [ math.pow(i,2) - pow(j,2)
-                    for i,j in zip(p1, p0) ]
+            abs(
+                sum(
+                    [ math.pow(i,2) - pow(j,2)
+                        for i,j in zip(p1, p0) ]
+                )
             )
         )
     )
+
+
+def distance_between_points_2(p0: np.array, p1: np.array):
+    p0, p1 = np.array(p0), np.array(p1)
+    temp = p1 - p0
+    temp_squared = [ math.pow(i,2) for i in temp]
+    temp_sum = sum(temp_squared)
+    temp_root = math.sqrt(temp_sum)
+    return temp_root
     
+
+
+
+'''
+    ##################################################
+'''
+'''
+    ===== PLAN A TOOLPATH STARTING CLOSEST TO ORIGIN =====
+    = 
+    = 
+    = points :: path
+    = 
+    = points:   list of 3d vector, representing the perimiter points of a 3d object
+    = path:     path generated between these points, based on shortest distance between points
+    = 
+'''
+def plan_path(points: list):
+    point_chain = []
+    try:
+        ref_point = point_chain[-1]
+    except IndexError:
+        ref_point = np.array[0,0,0]

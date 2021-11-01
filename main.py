@@ -6,8 +6,9 @@ import numpy as np          ## ignore the error message
 ## ========== CONDENSE
 ## Reduces a list of 3D Vectors to only have unique entries
 def distill(to_condense: list):
-    return np.unique(to_condense, axis=0) # find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
+    temp = np.unique(to_condense, axis=0) # find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
     ## Funny thing, numpy.unique() also sorts list on chosen axis, based on first entry basis
+    return temp.tolist()
 
 
 
@@ -72,15 +73,18 @@ intersections_distilled = distill(intersections)
 
 print(intersections_distilled)
 
-point_chain = []
-point_leftover = []
+## TODO: do the thing of pathplanning yes
+## TODO: do not use a leftovers bin, just reinsert not-shortest back into the first list, then do np.sort on the list after every itteration
+# point_chain = []
+# point_leftover = []
 
-temp_point = None
-temp_dist = None
-closest_point = None
-closest_distance = None
-ref_point = None
+# temp_point = None
+# temp_dist = None
+# closest_point = None
+# closest_distance = None
+# ref_point = None
 
+## True loop temporary disabled do to infinate loop
 # while True:
 #     try:
 #         ref_point = intersections_distilled[-1]
@@ -88,46 +92,70 @@ ref_point = None
 #         ref_point = plane_coord
 
 #     while len(intersections_distilled) > 1:
-#         pass # TODO: don't
+#         pass ## TODO: don't
 
-
-print("aids")     
-
-
+point_chain = []
 
 
 
+while True:     ## IT FUCKING WORKS LETS GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+    # print("len" + str(len(intersections_distilled)))
+    if len(intersections_distilled) == 1:                                   ## if only one remaining -> must be closest point
+        point_chain.extend([intersections_distilled[0], point_chain[0]])    ## add this point to chain and copy start position
+        break
 
+    closest_distance = 10e6
+    closest_point = None
+    bucket = []
 
+    try:
+        refrence = point_chain[-1]
+    except IndexError:
+        refrence = plane_coord
 
+    # for temp_point in intersections_distilled:
+    #     # print("p0: " + str(refrence))
+    #     # print("p1: " + str(temp_point))
+    #     temp_distance = distance_between_points(refrence, temp_point)
+    #     # print("d:  " + str(temp_distance))
+    #     if temp_distance < closest_distance:
+    #         closest_point = temp_point
 
+    # for temp_index in range(len(intersections_distilled)):
+    #     print(temp_index)
+    #     temp_point = intersections_distilled.pop(temp_index)
+    #     temp_distance = distance_between_points(refrence, temp_point)
 
+    #     if temp_distance < closest_distance:
+    #         closest_point = temp_point
+    #         closest_distance = temp_distance
+    #     else:
+    #         bucket.append(temp_point)
 
+    while True:
+        try:
+            temp_point = intersections_distilled.pop(0)                 ## Take first point in line
+        except IndexError:                                              ## if no point, stop trying
+            break
 
+        temp_distance = distance_between_points_2(refrence, temp_point)   ## Calculate distance
+        # print("p0: {0},\np1: {1},\nd:  {2}".format(refrence, temp_point, str(temp_distance)))
 
+        if temp_distance < closest_distance:    ## Check if this point is closer than last
+            if closest_point:
+                bucket.append(closest_point)    ## return other wrong closest to bucket
+            closest_point = temp_point          ## Replace closest known point and distance
+            closest_distance = temp_distance    ## |
+            # print("yoink")
+        else:
+            bucket.append(temp_point)           ## Otherwise, discard point into bucket
+            # print("yeet")
+        
+    point_chain.append(closest_point)           ## After all points have been tried, append closest point to chain
+    # print("added: {0} to chain".format(closest_point))
+    # print("temp point chain:\n{0}".format(point_chain))
 
+    intersections_distilled = bucket                                    ## Reset bucket to origional list
+    # print("leftovers" + str(bucket))
 
-
-
-## Generate all possible permutations of condensed points
-# permutations = it.permutations(condensed, r=3)
-
-# z = 0
-# for x in permutations:
-#     z = z + 1
-
-# for x in permutations:
-#     print(x[0])
-
-# print(condensed)
-
-# perimiter = []
-# for i in permutations:
-#     test = point_is_on_line(i[0], i[1], i[2])
-#     if (test):
-#         perimiter.append(i[2])
-
-# for i in perimiter:
-    # print(i)
-
-# perimiter_condensed
+print(point_chain)
