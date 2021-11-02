@@ -45,17 +45,21 @@ line_permutations = [
     [ [0,3], [6,9] ]
 ]
 
-offsetX = 10.0
-offsetY = 10.0
-offsetZ = 0.1
+step_height = 0.1
+offset_x = 10.0
+offset_y = 10.0
+offset_z = 0.1
 
-maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Retardation 0.6.8\n"
+layers = np.arange(0, 11, step_height)
 
-f = open('x.gcode', 'a')    ## Open file for writing
+maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Retardation 0.6.8"
+
+f = open('y.gcode', 'w')    ## Open file for writing
 f.write(maker_message)
-f.write('G28 ; HOME ALL AXIS\n')
+f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z))
+f.write('\nG28 ; HOME ALL AXIS')
 
-for layer_height in range(0,11,1):
+for layer_height in layers:
     plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)   ## coordinate on slice plane
     plane_norm  = np.array([0, 0, 1], dtype=np.float32)    ## normal vector of slice plane, purpendicular to plane
 
@@ -91,6 +95,9 @@ for layer_height in range(0,11,1):
             point_chain.extend([intersections_distilled[0], point_chain[0]])    ## add this point to chain and copy start position
             break
 
+        if len(intersections_distilled) == 0:
+            break
+
         closest_distance = 10e6 ## temp closest distance
         closest_point = None    ## temp closest point
         bucket = []             ## this is a bucket
@@ -106,7 +113,7 @@ for layer_height in range(0,11,1):
             except IndexError:                              ## if no point, stop trying
                 break
 
-            temp_distance = distance_between_points_2(refrence, temp_point)   ## Calculate distance
+            temp_distance = distance_between_points(refrence, temp_point)   ## Calculate distance
 
             if temp_distance < closest_distance:    ## Check if this point is closer than last
                 if closest_point:
@@ -123,9 +130,13 @@ for layer_height in range(0,11,1):
     ## Print chain as layer
     print(point_chain)
     
-    f.write("; LAYER HEIGHT\n")
+    f.write("\n; LAYER HEIGHT: {0}".format(layer_height))
     for any_point in point_chain:
-        x = any_point[0] + offsetX
-        y = any_point[1] + offsetY
-        z = any_point[2] + offsetZ
-        f.write("G1 X{0} Y{1} Z{2}\n".format(x,y,z))
+        x = any_point[0] + offset_x
+        y = any_point[1] + offset_y
+        z = any_point[2] + offset_z
+        f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
+        f.write("\nG4 P500")
+
+f.write('\n; THANK GOD I\'M DONE')
+f.close()
