@@ -141,11 +141,9 @@ def point_is_on_line(l0: np.array, l1: np.array, p: np.array, epsilon = 1e-6):
 def distance_between_points(p0: np.array, p1: np.array): # TODO give more info for this fucky calculation
     return (
         math.sqrt(
-            abs(
-                sum(
-                    [ math.pow(i,2) - pow(j,2)
-                        for i,j in zip(p1, p0) ]
-                )
+            sum(
+                [ math.pow(i-j,2)
+                    for i,j in zip(p1, p0) ]
             )
         )
     )
