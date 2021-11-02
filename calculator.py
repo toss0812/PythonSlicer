@@ -1,5 +1,5 @@
-import numpy as np      ## ignore goddamnit, why the fuck is this suddenly not working?
-from stl import mesh    ## ignore
+import numpy as np
+from stl import mesh
 import math
 '''
     ##### CALCULATOR FUNCTIONS #####
@@ -10,9 +10,7 @@ import math
     #
 
     ##### CALCULATOR TODO's
-    TODO: in isect_line_plane() -> if all "z"-values are equal line is on plane -> should return both points instead of raising Exception, or return customException
-    TODO: ignore points already on a line to ensure to double extrusion over line segment
-    TODO:
+    TODO: asdf
 '''
 
 

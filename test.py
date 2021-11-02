@@ -12,6 +12,8 @@ d2 = distance_between_points_2(b,a)
 print("d1: {0}\nd2: {1}".format(d1, d2))
 
 
+f = open('x.gcode', 'a')
+
 # d = distance_between_points(a,b)
 
 # d = [a,b,c]
