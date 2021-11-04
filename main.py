@@ -25,7 +25,17 @@ def distill(to_condense: list):
 
 
 ## ========== MAIN THINGS
-my_mesh = read("untitled v0.stl") # simple cube with sides of length = 10
+
+
+input_file = input("please enter input file name (*.stl): ")
+try:
+    my_mesh = read(input_file) # simple cube with sides of length = 10
+except Exception:
+    print("no known file")
+    exit()
+
+
+output_file = input("please enter output file name: ")
 
 # print(my_mesh.points) 
 '''
@@ -45,23 +55,37 @@ line_permutations = [
     [ [0,3], [6,9] ]
 ]
 
-step_height = 0.1
 offset_x = 10.0
 offset_y = 10.0
 offset_z = 0.1
 
-layers = np.arange(0, 11, step_height)
 
-maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Retardation 0.6.8"
 
-f = open('y.gcode', 'w')    ## Open file for writing
-f.write(maker_message)
-f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z))
-f.write('\nG28 ; HOME ALL AXIS')
 
+
+f = open('{0}.gcode'.format(output_file), 'w')    ## Open file for writing
+
+maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Genuine Passion and a Good Grudge 0.6.8" ## maker message gets added to the .gcode file as a signature
+f.write(maker_message)                                                                          ## append maker message
+f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z)) ## append print settings
+f.write('\nG28 ; HOME ALL AXIS')                                                                ## start with auto-homing sequence
+
+
+
+
+# max_layer_height = np.amax(my_mesh.points, axis=0)
+# print(max_layer_height)
+
+## Generate z-height for slicing and toolpath generation
+step_height = 1                         ## TODO: USE MAX HEIGHT OF OBJECT FOR USE IN LAYER ITERATION
+layers = np.arange(0, 11, step_height)  ## Stephieght of >1 will result in strange z values, due to 32bit-/ 64bit_float conversion
+
+
+''' ################################################## ITTERATE TO SLICE & PLAN THROUGH ALL LAYERS '''
 for layer_height in layers:
-    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)   ## coordinate on slice plane
-    plane_norm  = np.array([0, 0, 1], dtype=np.float32)    ## normal vector of slice plane, purpendicular to plane
+    ''' ============================== FIND LINE-PLANE INTERSECTIONS '''
+    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)  ## coordinate on slice plane
+    plane_norm  = np.array([0, 0, 1], dtype=np.float32)             ## normal vector of slice plane, purpendicular to plane
 
     intersections = []  # temp list to store any found intersections
 
@@ -69,9 +93,10 @@ for layer_height in layers:
     for line in range(len(my_mesh.points)): ## Check all polygons
         for start_stop in line_permutations:
 
-            l0 = my_mesh.points[ line ][ start_stop[0][0] : start_stop[0][1] ]  ## 3D Matrix looping magic BS
+            l0 = my_mesh.points[ line ][ start_stop[0][0] : start_stop[0][1] ]  ## "2D / 3D" Matrix looping magic BS
             l1 = my_mesh.points[ line ][ start_stop[1][0] : start_stop[1][1] ]  ## |
 
+            ## Point calculation may cause errors
             try: 
                 i = isect_line_plane(l0, l1, plane_coord, plane_norm)   ## Calculate intersection point
                 intersections.append(i)                                 ## If no errors -> add point to intersections
@@ -85,12 +110,13 @@ for layer_height in layers:
 
     ## Remove repeat points
     intersections_distilled = distill(intersections)
-
-    # print(intersections_distilled)
+    
+    
+    
+    ''' ============================== GENERATE NOZZLE PATH '''
     point_chain = []
 
-    while True:     ## IT FUCKING WORKS LETS GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-        # print("len" + str(len(intersections_distilled)))
+    while True:     ## IT FUCKING WORKS LETS GOOOOOOOOO, *dabs*
         if len(intersections_distilled) == 1:                                   ## if only one remaining -> must be closest point
             point_chain.extend([intersections_distilled[0], point_chain[0]])    ## add this point to chain and copy start position
             break
@@ -98,9 +124,10 @@ for layer_height in layers:
         if len(intersections_distilled) == 0:
             break
 
-        closest_distance = 10e6 ## temp closest distance
+        ## "Gentlemen, synchronise your deathwatches."
+        closest_distance = 10e6 ## temp closest distance, ridicilously large
         closest_point = None    ## temp closest point
-        bucket = []             ## this is a bucket
+        bucket = []             ## (1)"Gentlemen, this is a bucket."   (2)"Dear God."   (1)"Wait, there is more."   (2)"No..."
 
         try:
             refrence = point_chain[-1]  ## if pointchain is empty
