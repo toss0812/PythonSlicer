@@ -18,7 +18,7 @@ import numpy as np          ## ignore the error message
 ## ========== CONDENSE
 ## Reduces a list of 3D Vectors to only have unique entries
 def distill(to_condense: list):
-    temp = np.unique(to_condense, axis=0) # find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
+    temp = np.unique(to_condense, axis=0) ## find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
     ## Funny thing, numpy.unique() also sorts list on chosen axis, based on first entry basis
     return temp.tolist()
 
