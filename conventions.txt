@@ -1,0 +1,21 @@
+'''
+    ####################################################################################################
+'''
+'''
+    ===== Function Label =====
+    = short descripition
+    = 
+    = input :: input -> output
+    = 
+    = input descripition
+    ==========================
+'''
+
+# temp comment
+## serious comment
+#/ meta comment
+#? meta question
+
+
+
+
