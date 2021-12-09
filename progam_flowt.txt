@@ -1,0 +1,86 @@
+## ===== Legend ===== ##
+## x ## : title x
+;;      : comment
+[x]     : module x
+x = y   : assignment
+<       : get
+>       : store
+v       : read
+^       : write
+/       : operation
+?       : decision
+    n?      : no
+    y?      : yes
+    e?      : error
+    "x"?    : statement
+    ...? ~  : continue
+... @x      : jump to line with corrosponding @x, if no x? first @ above
+$x          : more complicated explained elsewhere with corrosponding $x
+
+
+
+## General View ##
+v .stl [slicer]
+^ .gcode [slicer]
+
+
+## Slicer ##
+;; slicing 
+v   read .stl
+>   store .stl -> Matrix
+/   generate new slicing plane
+@
+<   get new line <- Matrix
+/   calculate if line intersects plane $1
+?   does line intersect plane ?
+        n?  @
+        e?  @e0
+        y?  ~
+>   store point -> append list
+?   all lines tried ?
+        n?  @
+        y?  ~
+
+
+;; reducing
+/   discard duplicate intersections $2
+
+;; pathing
+@
+?   is chain empty ?
+    y?
+        /   find point closest to refrence
+        ~
+    n?
+        <   get refrence <- last in chain
+        ~
+
+<   pop point <- next point from list
+/   calculate distance between point and refrence
+?   is distance < last distance ?
+    n?  @
+    y?  ~
+>   store distance -> last distance
+>   store point -> closest point
+?   all points in list done ?
+    n?  @
+    y?  ~
+>   store closest point -> chain
+?   is list empty ?
+    n?  @
+    y?  ~
+
+    ;; ofset and gcode generation
+        
+
+
+@e0
+    ? both points are on plane ?
+        y?  > both points -> extend list
+        n?  @0
+
+
+
+
+    
+
