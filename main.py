@@ -1,7 +1,7 @@
 from calculator import *
 from reader import *
 import itertools as it
-import numpy as np          ## ignore the error message
+import numpy as np
 
 '''
     ##### MAIN FUNCTIONS #####
@@ -18,8 +18,8 @@ import numpy as np          ## ignore the error message
 ## ========== CONDENSE
 ## Reduces a list of 3D Vectors to only have unique entries
 def distill(to_condense: list):
-    temp = np.unique(to_condense, axis=0) ## find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
-    ## Funny thing, numpy.unique() also sorts list on chosen axis, based on first entry basis
+    temp = np.unique(to_condense, axis=0) ## Find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
+    ## Funny thing, "numpy.unique()" also sorts list on chosen axis, based on first entry basis
     return temp.tolist()
 
 
@@ -29,7 +29,7 @@ def distill(to_condense: list):
 
 input_file = input("please enter input file name (*.stl): ")
 try:
-    my_mesh = read(input_file) # simple cube with sides of length = 10
+    my_mesh = read(input_file) ## Simple cube with sides of length = 10
 except Exception:
     print("no known file")
     exit()
@@ -38,6 +38,7 @@ except Exception:
 output_file = input("please enter output file name: ")
 
 # print(my_mesh.points) 
+
 '''
 this is a representation of an .stl polygon in a numpy.ndarray
 dtype = float32
@@ -49,7 +50,7 @@ dtype = float32
 ]
 '''
 
-line_permutations = [
+line_permutations = [   ## Used in magic 3D matrix BS
     [ [0,3], [3,6] ],
     [ [3,6], [6,9] ],
     [ [0,3], [6,9] ]
@@ -65,10 +66,10 @@ offset_z = 0.1
 
 f = open('{0}.gcode'.format(output_file), 'w')    ## Open file for writing
 
-maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Genuine Passion and a Good Grudge 0.6.8" ## maker message gets added to the .gcode file as a signature
-f.write(maker_message)                                                                          ## append maker message
-f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z)) ## append print settings
-f.write('\nG28 ; HOME ALL AXIS')                                                                ## start with auto-homing sequence
+maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Genuine Passion and a Good Grudge 0.6.8" ## Maker message gets added to the .gcode file as a signature
+f.write(maker_message)                                                                          ## Append maker message
+f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z)) ## Append print settings
+f.write('\nG28 ; HOME ALL AXIS')                                                                ## Start with auto-homing sequence
 
 
 
@@ -77,17 +78,18 @@ f.write('\nG28 ; HOME ALL AXIS')                                                
 # print(max_layer_height)
 
 ## Generate z-height for slicing and toolpath generation
-step_height = 1                         ## TODO: USE MAX HEIGHT OF OBJECT FOR USE IN LAYER ITERATION
-layers = np.arange(0, 11, step_height)  ## Stephieght of >1 will result in strange z values, due to 32bit-/ 64bit_float conversion
+step_height = 1                         # TODO: USE MAX HEIGHT OF OBJECT FOR USE IN LAYER ITERATION
+layers = np.arange(0, 11, step_height)  ## Stepheight of >1 will result in strange z values, due to 32bit-/ 64bit_float conversion
+
 
 
 ''' ################################################## ITTERATE TO SLICE & PLAN THROUGH ALL LAYERS '''
 for layer_height in layers:
     ''' ============================== FIND LINE-PLANE INTERSECTIONS '''
-    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)  ## coordinate on slice plane
-    plane_norm  = np.array([0, 0, 1], dtype=np.float32)             ## normal vector of slice plane, purpendicular to plane
+    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)  ## Coordinate on slice plane
+    plane_norm  = np.array([0, 0, 1], dtype=np.float32)             ## Normal vector of slice plane, purpendicular to plane
 
-    intersections = []  # temp list to store any found intersections
+    intersections = []  ## Temp list to store any found intersections
 
     ## Checking Lines with slicing plane
     for line in range(len(my_mesh.points)): ## Check all polygons
@@ -117,34 +119,34 @@ for layer_height in layers:
     point_chain = []
 
     while True:     ## IT FUCKING WORKS LETS GOOOOOOOOO, *dabs*
-        if len(intersections_distilled) == 1:                                   ## if only one remaining -> must be closest point
-            point_chain.extend([intersections_distilled[0], point_chain[0]])    ## add this point to chain and copy start position
+        if len(intersections_distilled) == 1:                                   ## If only one remaining -> must be closest point
+            point_chain.extend([intersections_distilled[0], point_chain[0]])    ## Add this point to chain and copy start position
             break
 
         if len(intersections_distilled) == 0:
             break
 
         ## "Gentlemen, synchronise your deathwatches."
-        closest_distance = 10e6 ## temp closest distance, ridicilously large
-        closest_point = None    ## temp closest point
+        closest_distance = 10e6 ## Temp closest distance, ridicilously large
+        closest_point = None    ## Temp closest point
         bucket = []             ## (1)"Gentlemen, this is a bucket."   (2)"Dear God."   (1)"Wait, there is more."   (2)"No..."
 
         try:
-            refrence = point_chain[-1]  ## if pointchain is empty
+            refrence = point_chain[-1]  ## If pointchain is empty
         except IndexError:              ## |
-            refrence = plane_coord      ## \-> ues plane coordinate as refrence
+            refrence = plane_coord      ## \-> use plane coordinate as refrence
 
         while True:
             try:
                 temp_point = intersections_distilled.pop(0) ## Take first point in line
-            except IndexError:                              ## if no point, stop trying
+            except IndexError:                              ## If no point, stop trying
                 break
 
             temp_distance = distance_between_points(refrence, temp_point)   ## Calculate distance
 
             if temp_distance < closest_distance:    ## Check if this point is closer than last
                 if closest_point:
-                    bucket.append(closest_point)    ## return other wrong closest to bucket
+                    bucket.append(closest_point)    ## Return other wrong closest to bucket
                 closest_point = temp_point          ## Replace closest known point and distance
                 closest_distance = temp_distance    ## |
             else:
@@ -165,5 +167,5 @@ for layer_height in layers:
         f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
         f.write("\nG4 P500")
 
-f.write('\n; THANK GOD I\'M DONE')
-f.close()
+f.write('\n; THANK GOD I\'M DONE')  ## Final message
+f.close()                           ## Close file
