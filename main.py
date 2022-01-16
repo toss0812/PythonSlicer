@@ -15,7 +15,7 @@ import numpy as np          ## ignore the error message
     TODO: make program loop through all layers
 '''
 
-## ========== CONDENSE
+## ========== DISTILL
 ## Reduces a list of 3D Vectors to only have unique entries
 def distill(to_condense: list):
     temp = np.unique(to_condense, axis=0) ## find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
@@ -157,11 +157,14 @@ for layer_height in layers:
     ## Print chain as layer
     print(point_chain)
     
+    ##TODO: Calculate volume of fillament needed for segment, calculate extrusion length
+
     f.write("\n; LAYER HEIGHT: {0}".format(layer_height))
     for any_point in point_chain:
         x = any_point[0] + offset_x
         y = any_point[1] + offset_y
         z = any_point[2] + offset_z
+        ##TODO: Add extrusion distance
         f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
         f.write("\nG4 P500")
 
