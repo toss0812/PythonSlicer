@@ -3,16 +3,10 @@ from reader import *
 import itertools as it
 import numpy as np          ## ignore the error message
 
-'''
-    ##### MAIN FUNCTIONS #####
-    #
-    #
-    #
-    #
-    #
-
-    ##### CALCULATOR TODO's
-    TODO: make program loop through all layers
+''' 
+==================================================
+= Program written by Tom Dingenouts @toss0812
+================================================== 
 '''
 
 ## ========== DISTILL
@@ -26,7 +20,7 @@ def distill(to_condense: list):
 
 ## ========== MAIN THINGS
 
-
+#F1 Ask the user for the name of the input and output files
 input_file = input("please enter input file name (*.stl): ")
 try:
     my_mesh = read(input_file) # simple cube with sides of length = 10
@@ -34,10 +28,9 @@ except Exception:
     print("no known file")
     exit()
 
-
 output_file = input("please enter output file name: ")
 
-# print(my_mesh.points) 
+print(my_mesh.points) 
 '''
 this is a representation of an .stl polygon in a numpy.ndarray
 dtype = float32
@@ -58,6 +51,8 @@ line_permutations = [
 offset_x = 10.0
 offset_y = 10.0
 offset_z = 0.1
+total_extruded_distance = 0.0
+extrusion_conversion_factor = 0.033
 
 
 
@@ -65,7 +60,7 @@ offset_z = 0.1
 
 f = open('{0}.gcode'.format(output_file), 'w')    ## Open file for writing
 
-maker_message = "; HOLY FUCK I HATE MY LIFE\n; FLAVOR:Marlin\n; Generated with Genuine Passion and a Good Grudge 0.6.8" ## maker message gets added to the .gcode file as a signature
+maker_message = "; Welcome to Noodle v1.6.8 \n; Generated with Genuine Passion and a dash of Anger" ## maker message gets added to the .gcode file as a signature
 f.write(maker_message)                                                                          ## append maker message
 f.write('\n; PRINT SETTINGS\n; offsets: X:{0} Y:{1} Z{2}'.format(offset_x, offset_y, offset_z)) ## append print settings
 f.write('\nG28 ; HOME ALL AXIS')                                                                ## start with auto-homing sequence
@@ -78,7 +73,7 @@ f.write('\nG28 ; HOME ALL AXIS')                                                
 
 ## Generate z-height for slicing and toolpath generation
 step_height = 1                         ## TODO: USE MAX HEIGHT OF OBJECT FOR USE IN LAYER ITERATION
-layers = np.arange(0, 11, step_height)  ## Stephieght of >1 will result in strange z values, due to 32bit-/ 64bit_float conversion
+layers = np.arange(0, 30, step_height)  ## Stepheight of >1 will result in strange z values, due to 32bit-/ 64bit_float conversion
 
 
 ''' ################################################## ITTERATE TO SLICE & PLAN THROUGH ALL LAYERS '''
@@ -89,12 +84,12 @@ for layer_height in layers:
 
     intersections = []  # temp list to store any found intersections
 
+    #F1
     ## Checking Lines with slicing plane
-    for line in range(len(my_mesh.points)): ## Check all polygons
+    for polygon in range(len(my_mesh.points)): ## Check all polygons
         for start_stop in line_permutations:
-
-            l0 = my_mesh.points[ line ][ start_stop[0][0] : start_stop[0][1] ]  ## "2D / 3D" Matrix looping magic BS
-            l1 = my_mesh.points[ line ][ start_stop[1][0] : start_stop[1][1] ]  ## |
+            l0 = my_mesh.points[ polygon ][ start_stop[0][0] : start_stop[0][1] ]  ## "2D / 3D" Matrix looping magic BS
+            l1 = my_mesh.points[ polygon ][ start_stop[1][0] : start_stop[1][1] ]  ## |
 
             ## Point calculation may cause errors
             try: 
@@ -110,6 +105,7 @@ for layer_height in layers:
 
     ## Remove repeat points
     intersections_distilled = distill(intersections)
+    
     
     
     
@@ -155,18 +151,32 @@ for layer_height in layers:
         intersections_distilled = bucket            ## Reset bucket to origional list
 
     ## Print chain as layer
-    print(point_chain)
+    # print(point_chain)
     
     ##TODO: Calculate volume of fillament needed for segment, calculate extrusion length
 
     f.write("\n; LAYER HEIGHT: {0}".format(layer_height))
-    for any_point in point_chain:
-        x = any_point[0] + offset_x
-        y = any_point[1] + offset_y
-        z = any_point[2] + offset_z
-        ##TODO: Add extrusion distance
-        f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
-        f.write("\nG4 P500")
+    # for any_point in point_chain:
+    #     x = any_point[0] + offset_x
+    #     y = any_point[1] + offset_y
+    #     z = any_point[2] + offset_z
+    #     total_extruded_distance = total_extruded_distance + e
+    #     ##TODO: Add extrusion distance
+    #     f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
+    #     f.write("\nG4 P500")
+
+    for index in range(len(point_chain)):
+        any_point = point_chain[index]
+        prev_point = point_chain[index-1]
+        print(any_point)
+        if(index == 0):
+            prev_point = any_point
+
+        d = distance_between_points(any_point, prev_point) * extrusion_conversion_factor
+        total_extruded_distance = total_extruded_distance + d
+        any_point = any_point + [offset_x, offset_y, offset_z]
+
+        f.write("\nG1 F1800 X{0} Y{1} Z{2} E{3}".format(any_point[0],any_point[1],any_point[2],total_extruded_distance))
 
 f.write('\n; THANK GOD I\'M DONE')
 f.close()

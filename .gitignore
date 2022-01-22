@@ -1,2 +1,5 @@
 program_flowt.txt
+conventions.txt
 test.py
+gcode_output/
+stl_examples/
