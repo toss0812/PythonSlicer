@@ -1,7 +1,7 @@
 from calculator import *
 from reader import *
 import itertools as it
-import numpy as np          ## ignore the error message
+import numpy as np
 
 ''' 
 ==================================================
@@ -12,8 +12,8 @@ import numpy as np          ## ignore the error message
 ## ========== DISTILL
 ## Reduces a list of 3D Vectors to only have unique entries
 def distill(to_condense: list):
-    temp = np.unique(to_condense, axis=0) ## find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
-    ## Funny thing, numpy.unique() also sorts list on chosen axis, based on first entry basis
+    temp = np.unique(to_condense, axis=0) ## Find unique entries in list, axis=0 -> otherwise 2d array will be flattened and will return unique values of all entries
+    ## Funny thing, "numpy.unique()" also sorts list on chosen axis, based on first entry basis
     return temp.tolist()
 
 
@@ -23,14 +23,15 @@ def distill(to_condense: list):
 #F1 Ask the user for the name of the input and output files
 input_file = input("please enter input file name (*.stl): ")
 try:
-    my_mesh = read(input_file) # simple cube with sides of length = 10
+    my_mesh = read(input_file) ## Simple cube with sides of length = 10
 except Exception:
     print("no known file")
     exit()
 
 output_file = input("please enter output file name: ")
 
-print(my_mesh.points) 
+# print(my_mesh.points) 
+
 '''
 this is a representation of an .stl polygon in a numpy.ndarray
 dtype = float32
@@ -42,7 +43,7 @@ dtype = float32
 ]
 '''
 
-line_permutations = [
+line_permutations = [   ## Used in magic 3D matrix BS
     [ [0,3], [3,6] ],
     [ [3,6], [6,9] ],
     [ [0,3], [6,9] ]
@@ -79,10 +80,10 @@ layers = np.arange(0, 30, step_height)  ## Stepheight of >1 will result in stran
 ''' ################################################## ITTERATE TO SLICE & PLAN THROUGH ALL LAYERS '''
 for layer_height in layers:
     ''' ============================== FIND LINE-PLANE INTERSECTIONS '''
-    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)  ## coordinate on slice plane
-    plane_norm  = np.array([0, 0, 1], dtype=np.float32)             ## normal vector of slice plane, purpendicular to plane
+    plane_coord = np.array([0, 0 ,layer_height], dtype=np.float32)  ## Coordinate on slice plane
+    plane_norm  = np.array([0, 0, 1], dtype=np.float32)             ## Normal vector of slice plane, purpendicular to plane
 
-    intersections = []  # temp list to store any found intersections
+    intersections = []  ## Temp list to store any found intersections
 
     #F1
     ## Checking Lines with slicing plane
@@ -113,34 +114,34 @@ for layer_height in layers:
     point_chain = []
 
     while True:     ## IT FUCKING WORKS LETS GOOOOOOOOO, *dabs*
-        if len(intersections_distilled) == 1:                                   ## if only one remaining -> must be closest point
-            point_chain.extend([intersections_distilled[0], point_chain[0]])    ## add this point to chain and copy start position
+        if len(intersections_distilled) == 1:                                   ## If only one remaining -> must be closest point
+            point_chain.extend([intersections_distilled[0], point_chain[0]])    ## Add this point to chain and copy start position
             break
 
         if len(intersections_distilled) == 0:
             break
 
         ## "Gentlemen, synchronise your deathwatches."
-        closest_distance = 10e6 ## temp closest distance, ridicilously large
-        closest_point = None    ## temp closest point
+        closest_distance = 10e6 ## Temp closest distance, ridicilously large
+        closest_point = None    ## Temp closest point
         bucket = []             ## (1)"Gentlemen, this is a bucket."   (2)"Dear God."   (1)"Wait, there is more."   (2)"No..."
 
         try:
-            refrence = point_chain[-1]  ## if pointchain is empty
+            refrence = point_chain[-1]  ## If pointchain is empty
         except IndexError:              ## |
-            refrence = plane_coord      ## \-> ues plane coordinate as refrence
+            refrence = plane_coord      ## \-> use plane coordinate as refrence
 
         while True:
             try:
                 temp_point = intersections_distilled.pop(0) ## Take first point in line
-            except IndexError:                              ## if no point, stop trying
+            except IndexError:                              ## If no point, stop trying
                 break
 
             temp_distance = distance_between_points(refrence, temp_point)   ## Calculate distance
 
             if temp_distance < closest_distance:    ## Check if this point is closer than last
                 if closest_point:
-                    bucket.append(closest_point)    ## return other wrong closest to bucket
+                    bucket.append(closest_point)    ## Return other wrong closest to bucket
                 closest_point = temp_point          ## Replace closest known point and distance
                 closest_distance = temp_distance    ## |
             else:
@@ -149,21 +150,10 @@ for layer_height in layers:
         point_chain.append(closest_point)           ## After all points have been tried, append closest point to chain
 
         intersections_distilled = bucket            ## Reset bucket to origional list
-
-    ## Print chain as layer
-    # print(point_chain)
     
-    ##TODO: Calculate volume of fillament needed for segment, calculate extrusion length
 
+    ''' ============================== GENERATE GCODE '''
     f.write("\n; LAYER HEIGHT: {0}".format(layer_height))
-    # for any_point in point_chain:
-    #     x = any_point[0] + offset_x
-    #     y = any_point[1] + offset_y
-    #     z = any_point[2] + offset_z
-    #     total_extruded_distance = total_extruded_distance + e
-    #     ##TODO: Add extrusion distance
-    #     f.write("\nG1 F1800 X{0} Y{1} Z{2}".format(x,y,z))
-    #     f.write("\nG4 P500")
 
     for index in range(len(point_chain)):
         any_point = point_chain[index]
@@ -178,5 +168,5 @@ for layer_height in layers:
 
         f.write("\nG1 F1800 X{0} Y{1} Z{2} E{3}".format(any_point[0],any_point[1],any_point[2],total_extruded_distance))
 
-f.write('\n; THANK GOD I\'M DONE')
-f.close()
+f.write('\n; THANK GOD I\'M DONE')  ## Final message
+f.close()                           ## Close file
